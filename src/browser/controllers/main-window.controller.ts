@@ -6,6 +6,7 @@ import { OverlayService } from '../services/overlay.service';
 import { overwolf } from '@overwolf/ow-electron';
 import { OverlayHotkeysService } from '../services/overlay-hotkeys.service';
 import { ExclusiveHotKeyMode, OverlayInputService } from '../services/overlay-input.service';
+import {TftService} from "../services/tft.service";
 
 const owElectronApp = electronApp as overwolf.OverwolfApp;
 
@@ -23,13 +24,15 @@ export class MainWindowController {
     private readonly overlayService: OverlayService,
     private readonly createDemoOsrWinController: () => DemoOSRWindowController,
     private readonly overlayHotkeysService: OverlayHotkeysService,
-    private readonly overlayInputService: OverlayInputService
+    private readonly overlayInputService: OverlayInputService,
+    private readonly tftService: TftService,
+
   ) {
     this.registerToIpc();
 
     gepService.on('log', this.printLogMessage.bind(this));
     overlayService.on('log', this.printLogMessage.bind(this));
-
+    this.tftService.on('tft', this.printLogMessage.bind(this));
     overlayHotkeysService.on('log', this.printLogMessage.bind(this));
 
     owElectronApp.overwolf.packages.on('crashed', (e, ...args) => {
@@ -95,7 +98,7 @@ export class MainWindowController {
     ipcMain.handle('createOSR', async () => await this.createOSRDemoWindow());
 
     ipcMain.handle('gep-set-required-feature', async () => {
-      await this.gepService.setRequiredFeaturesForAllSupportedGames();
+      await this.gepService.setRequiredFeatures();
       return true;
     });
 
@@ -116,6 +119,7 @@ export class MainWindowController {
     ipcMain.handle('updateExclusiveOptions', async (sender, options) => {
       this.overlayInputService?.updateExclusiveModeOptions(options);
     });
+
 
     ipcMain.handle('EXCLUSIVE_TYPE', async (sender, type) => {
       if (!this.overlayInputService) {

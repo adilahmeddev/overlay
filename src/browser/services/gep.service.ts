@@ -1,6 +1,7 @@
-import { app as electronApp } from 'electron';
-import { overwolf } from '@overwolf/ow-electron' // TODO: wil be @overwolf/ow-electron
+import {app as electronApp} from 'electron';
+import {overwolf} from '@overwolf/ow-electron' // TODO: wil be @overwolf/ow-electron
 import EventEmitter from 'events';
+import {isTftUpdateFeature} from "../../../types/TftUpdateEvents";
 
 const app = electronApp as overwolf.OverwolfApp;
 
@@ -10,138 +11,139 @@ const app = electronApp as overwolf.OverwolfApp;
  *
  */
 export class GameEventsService extends EventEmitter {
-  private gepApi: overwolf.packages.OverwolfGameEventPackage;
-  private activeGame = 0;
-  private gepGamesId: number[] = [];
+    private gepApi: overwolf.packages.OverwolfGameEventPackage;
+    private gepGameId: number = 0;
 
-  constructor() {
-    super();
-    this.registerOverwolfPackageManager();
-  }
-
-
-  /**
-   *  for gep supported games goto:
-   *  https://overwolf.github.io/api/electron/game-events/
-   *   */
-  public registerGames(gepGamesId: number[]) {
-    this.emit('log', `register to game events for `, gepGamesId);
-    this.gepGamesId = gepGamesId;
-  }
-
-  /**
-   *
-   */
-  public async setRequiredFeaturesForAllSupportedGames() {
-    await Promise.all(this.gepGamesId.map(async (gameId) => {
-      this.emit('log', `set-required-feature for: ${gameId}`);
-      await this.gepApi.setRequiredFeatures(gameId, null);
-    }));
-  }
-
-  /**
-   *
-   */
-  public async getInfoForActiveGame(): Promise<any> {
-    if (this.activeGame == 0) {
-      return 'getInfo error - no active game';
+    constructor() {
+        super();
+        this.registerOverwolfPackageManager();
     }
 
-    return await this.gepApi.getInfo(this.activeGame);
-  }
+    /**
+     *  for gep supported games goto:
+     *  https://overwolf.github.io/api/electron/game-events/
+     *   */
+    public registerGames(gepGameId: number) {
+        this.emit('log', `register to game events for `, gepGameId);
+        this.gepGameId = gepGameId;
+    }
 
-  /**
-   * Register the Overwolf Package Manager events
-   */
-  private registerOverwolfPackageManager() {
-    // Once a package is loaded
-    app.overwolf.packages.on('ready', (e, packageName, version) => {
-      // If this is the GEP package (packageName serves as a UID)
-      if (packageName !== 'gep') {
-        return;
-      }
+    /**
+     *
+     */
+    public async setRequiredFeatures() {
+        await this.gepApi.setRequiredFeatures(this.gepGameId, ['game_info', 'live_client_data', 'board', 'bench', 'carousel', 'augments']);
+    }
 
-      this.emit('log', `gep package is ready: ${version}`);
+    /**
+     *
+     */
+    public async getInfoForActiveGame(): Promise<any> {
+        return await this.gepApi.getInfo(this.gepGameId);
+    }
 
-      // Prepare for Game Event handling
-      this.onGameEventsPackageReady();
+    /**
+     * Register the Overwolf Package Manager events
+     */
+    private registerOverwolfPackageManager() {
+        // Once a package is loaded
+        app.overwolf.packages.on('ready', (e, packageName, version) => {
+            // If this is the GEP package (packageName serves as a UID)
+            if (packageName !== 'gep') {
+                return;
+            }
 
-      this.emit('ready');
-    });
-  }
+            this.emit('log', `gep package is ready: ${version}`);
 
-  /**
-   * Register listeners for the GEP Package once it is ready
-   *
-   * @param {overwolf.packages.OverwolfGameEventPackage} gep The GEP Package instance
-   */
-  private async onGameEventsPackageReady() {
-    // Save package into private variable for later access
-    this.gepApi = app.overwolf.packages.gep;
+            // Prepare for Game Event handling
+            this.onGameEventsPackageReady();
 
-    // Remove all existing listeners to ensure a clean slate.
-    // NOTE: If you have other classes listening on gep - they'll lose their
-    // bindings.
-    this.gepApi.removeAllListeners();
+            this.emit('ready');
+        });
+    }
 
-    // If a game is detected by the package
-    // To check if the game is running in elevated mode, use `gameInfo.isElevate`
-    this.gepApi.on('game-detected', (e, gameId, name, gameInfo) => {
-      // If the game isn't in our tracking list
+    /**
+     * Register listeners for the GEP Package once it is ready
+     *
+     * @param {overwolf.packages.OverwolfGameEventPackage} gep The GEP Package instance
+     */
+    private async onGameEventsPackageReady() {
+        // Save package into private variable for later access
+        this.gepApi = app.overwolf.packages.gep;
 
-      if (!this.gepGamesId.includes(gameId)) {
-        // Stops the GEP Package from connecting to the game
-        this.emit('log', 'gep: skip game-detected', gameId, name, gameInfo.pid);
-        return;
-      }
+        // Remove all existing listeners to ensure a clean slate.
+        // NOTE: If you have other classes listening on gep - they'll lose their
+        // bindings.
+        this.gepApi.removeAllListeners();
 
-      /// if (gameInfo.isElevated) {
-      //   // Show message to User?
-      //   return;
-      // }
+        // If a game is detected by the package
+        // To check if the game is running in elevated mode, use `gameInfo.isElevate`
+        this.gepApi.on('game-detected', (e, gameId, name, gameInfo) => {
+            // If the game isn't in our tracking list
+            if (this.gepGameId !== gameId) {
+                // Stops the GEP Package from connecting to the game
+                this.emit('log', 'gep: skip game-detected', gameId, name, gameInfo.pid);
+                return;
+            }
 
-      this.emit('log', 'gep: register game-detected', gameId, name, gameInfo);
-      e.enable();
-      this.activeGame = gameId;
+            /// if (gameInfo.isElevated) {
+            //   // Show message to User?
+            //   return;
+            // }
 
-      // in order to start receiving event/info
-      // setRequiredFeatures should be set
-    });
+            this.emit('log', 'gep: register game-detected', gameId, name, gameInfo);
+            e.enable();
+            // in order to start receiving event/info
+            // setRequiredFeatures should be set
+        });
 
-    // undocumented (will add it fir next version) event to track game-exit
-    // from the gep api
-    //@ts-ignore
-    this.gepApi.on('game-exit',(e, gameId, processName, pid) => {
-      console.log('gep game exit', gameId, processName, pid);
-    });
+        // undocumented (will add it fir next version) event to track game-exit
+        // from the gep api
+        //@ts-ignore
+        this.gepApi.on('game-exit', (e, gameId, processName, pid) => {
+            console.log('gep game exit', gameId, processName, pid);
+        });
 
-    // If a game is detected running in elevated mode
-    // **Note** - This fires AFTER `game-detected`
-    this.gepApi.on('elevated-privileges-required', (e, gameId, ...args) => {
-      this.emit('log',
-        'elevated-privileges-required',
-        gameId,
-        ...args
-      );
+        // If a game is detected running in elevated mode
+        // **Note** - This fires AFTER `game-detected`
+        this.gepApi.on('elevated-privileges-required', (e, gameId, ...args) => {
+            this.emit('log',
+                'elevated-privileges-required',
+                gameId,
+                ...args
+            );
 
-      // TODO Handle case of Game running in elevated mode (meaning that the app also needs to run in elevated mode in order to detect events)
-    });
+            // TODO Handle case of Game running in elevated mode (meaning that the app also needs to run in elevated mode in order to detect events)
+        });
 
-    // When a new Info Update is fired
-    this.gepApi.on('new-info-update', (e, gameId, ...args) => {
-      this.emit('log', 'info-update', gameId, ...args);
-    });
 
-    // When a new Game Event is fired
-    this.gepApi.on('new-game-event', (e, gameId, ...args) => {
-      this.emit('log', 'new-event', gameId, ...args);
-    });
+        // When a new Info Update is fired
+        this.gepApi.on('new-info-update', (e: any, gameId, ...args) => {
+            console.log(e)
+            console.log(args)
+            args.forEach(it => {
+                const feature = it.feature;
+                if (isTftUpdateFeature(feature)) {
 
-    // If GEP encounters an error
-    this.gepApi.on('error', (e, gameId, error, ...args) => {
-      this.emit('log', 'gep-error', gameId, error, ...args);
+                    this.emit('log', '\n\n\n\n\n' + feature, it.value)
+                    this.emit('tft', feature, JSON.parse(it.value));
+                }
+            })
 
-      this.activeGame = 0;
-    });
-  }
+            //@ts-ignore
+            this.emit('log', 'info-update', gameId, ...args);
+        });
+
+        // When a new Game Event is fired
+        this.gepApi.on('new-game-event', (e, gameId, ...args) => {
+            this.emit('log', 'new-event', gameId, ...args);
+        });
+
+        // If GEP encounters an error
+        this.gepApi.on('error', (e, gameId, error, ...args) => {
+            this.emit('log', 'gep-error', gameId, error, ...args);
+        });
+    }
+
+
 }

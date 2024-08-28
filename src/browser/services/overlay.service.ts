@@ -139,4 +139,5 @@ export class OverlayService extends EventEmitter {
       this.emit('log', message, ...args);
     } catch {}
   }
+
 }

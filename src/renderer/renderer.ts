@@ -11,6 +11,17 @@ window.gep.onMessage(function(...args) {
   addMessageToTerminal(item);
 
 });
+//@ts-ignore
+window.tft.onMessage(function(...args) {
+  console.info(...args);
+
+  let item = ''
+  args.forEach(arg => {
+    item = `${item}-${JSON.stringify(arg)}`;
+  })
+  addMessageToTerminal(item);
+
+});
 
 
 const btn = document.querySelector('#clearTerminalTextAreaBtn') as HTMLButtonElement;
@@ -89,9 +100,9 @@ function addMessageToTerminal(message) {
 export function sendExclusiveOptions() {
   const color = (document.getElementById('colorPicker') as HTMLInputElement).value;
 
-  const r = parseInt(color.substr(1,2), 16);
-  const g = parseInt(color.substr(3,2), 16);
-  const b = parseInt(color.substr(5,2), 16);
+  const r = parseInt(color.substring(1,2), 16);
+  const g = parseInt(color.substring(3,2), 16);
+  const b = parseInt(color.substring(5,2), 16);
   const a = (document.getElementById('opacityRange') as HTMLInputElement).value;
 
   const options = {

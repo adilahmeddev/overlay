@@ -108,6 +108,11 @@ export class OverlayService extends EventEmitter {
       //event.inject();
     });
 
+
+    this.overlayApi.on('game-input-exclusive-mode-changed', (info) => {
+      this.log('overlay input exclusive mode changed', info);
+    });
+
     this.overlayApi.on('game-injection-error', (gameInfo, error) => {
       this.log('game-injection-error', error, gameInfo);
     });

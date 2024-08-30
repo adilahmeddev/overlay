@@ -10,9 +10,9 @@ export function isTftUpdateFeature(x: any): x is TftUpdateFeature {
 export interface Piece {
   name: string;
   level: number;
-  item1: string;
-  item2: string;
-  item3: string;
+  item_1: string;
+  item_2: string;
+  item_3: string;
 }
 
 

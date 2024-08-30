@@ -14,13 +14,15 @@ export class Application {
   constructor(
       private readonly overlayService: OverlayService,
       private readonly gepService: GameEventsService,
-      private readonly mainWindowController: MainWindowController, private readonly tftService: TftService) {
+      private readonly mainWindowController: MainWindowController,
+      private readonly tftService: TftService,
+  ) {
 
     overlayService.on('ready', this.onOverlayServiceReady.bind(this));
 
     overlayService.on('injection-decision-handling', (
       event: GameLaunchEvent,
-      gameInfo: GameInfo
+      _gameInfo: GameInfo
     ) => {
       // Always inject because we tell it which games we want in
       // onOverlayServiceReady

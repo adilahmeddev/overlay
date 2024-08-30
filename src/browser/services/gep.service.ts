@@ -32,7 +32,7 @@ export class GameEventsService extends EventEmitter {
      *
      */
     public async setRequiredFeatures() {
-        await this.gepApi.setRequiredFeatures(this.gepGameId, ['game_info', 'live_client_data', 'board', 'bench', 'carousel', 'augments']);
+        await this.gepApi.setRequiredFeatures(this.gepGameId, ['game_info', 'live_client_data', 'board', 'bench', 'carousel', 'augments', 'picked_augment']);
     }
 
     /**
@@ -65,7 +65,6 @@ export class GameEventsService extends EventEmitter {
     /**
      * Register listeners for the GEP Package once it is ready
      *
-     * @param {overwolf.packages.OverwolfGameEventPackage} gep The GEP Package instance
      */
     private async onGameEventsPackageReady() {
         // Save package into private variable for later access
@@ -120,9 +119,8 @@ export class GameEventsService extends EventEmitter {
         // When a new Info Update is fired
         this.gepApi.on('new-info-update', (e: any, gameId, ...args) => {
             args.forEach(it => {
-                const feature = it.feature;
-                if (isTftUpdateFeature(feature)) {
-                    this.emit('tft', feature, JSON.parse(it.value));
+                if (isTftUpdateFeature(it.feature, it.category)) {
+                    this.emit('tft',it.feature, JSON.parse(it.value));
                 }
             })
 

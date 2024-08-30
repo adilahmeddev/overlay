@@ -1,56 +1,25 @@
-import {BenchDto, BoardDto, CarouselDto, Piece, TftUpdateValue} from "../../../types/TftUpdateEvents";
-import {readdirSync} from "node:fs";
-import {readFileSync} from "fs";
+import {
+    AugmentsDto,
+    BenchDto,
+    BoardDto,
+    PickedAugmentsDto,
+    Piece,
+    TftUpdateValue
+} from "../../../types/TftUpdateEvents";
 import EventEmitter from "events";
+import {TftStaticData} from "./tftStaticData";
 
 export interface State {
-    board?: TftValue;
-    bench?: TftValue;
-    augments?: TftValue;
-    carousel?: TftValue;
+    board?: Board;
+    bench?: Bench;
+    augments?: string[];
+    picked_augment?: string[];
+    carousel?: Unit[];
 }
 
-const staticDataDir = './src/static';
+export const staticDataDir = './src/static';
 
-type TftStaticEntry = object
-
-export class TftStaticData {
-    augments: TftStaticEntry;
-    champions: TftStaticEntry;
-    charms: TftStaticEntry;
-    items: TftStaticEntry;
-    traits: TftStaticEntry;
-
-    constructor() {
-        readdirSync(staticDataDir).forEach(file => {
-            const buffer = readFileSync(`${staticDataDir}/${file}`);
-            const data = Object.values(JSON.parse(buffer.toString()).data).reduce((acc, it: any) => {
-                const key = it.id as string
-                acc[key] = it
-                return acc
-            }, Object.create({})) as object
-            switch (file.split('.')[0]) {
-                case 'tft-augments':
-                    this.augments = data;
-                    break;
-                case 'tft-champion':
-                    this.champions = data;
-                    break;
-                case 'tft-charms':
-                    this.charms = data;
-                    break;
-                case 'tft-item':
-                    this.items = data;
-                    break;
-                case 'tft-trait':
-                    this.traits = data;
-                    break;
-                default:
-            }
-            console.log(this)
-        })
-    }
-}
+export type TftStaticEntry = object
 
 type Unit = {
     id: string;
@@ -64,8 +33,9 @@ type Unit = {
     level: number;
 
 }
-type TftValue = Unit[]
-export type Bench = TftValue
+type TftValue = Board | Bench | string[]
+export type Bench = Unit[]
+export type Board = Unit[]
 
 export class TftService extends EventEmitter {
     readonly state: State;
@@ -76,14 +46,22 @@ export class TftService extends EventEmitter {
     }
 
     public set(key: keyof State, value: TftUpdateValue) {
-        this.state[key] = this.mapToDomain(key, value);
-        this.log('state-update', this.state);
+        let mapped = this.mapToDomain(key, value) as any;
+        this.state[key] = mapped;
+        console.log(mapped);
+        this.log('state-update', mapped);
     }
 
     private mapToDomain(key: keyof State, dto: TftUpdateValue): TftValue {
         let tftValue: TftValue = [];
         if (key === 'bench' || key === 'board') {
             return this.mapBoardOrBench(dto as BenchDto | BoardDto)
+        }
+        if (key === 'augments') {
+            return this.mapAugments(dto as AugmentsDto)
+        }
+        if (key === 'picked_augment') {
+            return this.mapAugments((dto as PickedAugmentsDto).me)
         }
         return tftValue;
     }
@@ -98,19 +76,19 @@ export class TftService extends EventEmitter {
     public printState() {
         this.log('state updated', this.state)
 
-  }
+    }
 
     private log(message: string, ...args: any[]) {
         try {
-            this.emit('log', message, ...args.map(it=>JSON.stringify(it)));
+            this.emit('log', message, ...args.map(it => JSON.stringify(it)));
         } catch {
         }
     }
 
-    private mapBoardOrBench(dto: BoardDto | BenchDto): TftValue{
-        return Object.values(dto).map((it: Piece) => {
+    private mapBoardOrBench(dto: BoardDto | BenchDto): Bench | Board {
+
+        return Object.values({...dto}).map((it: Piece) => {
             const champion = this.staticData.champions[it.name] as StaticChampion;
-            this.log('unit map', it)
             return {
                 name: champion.name,
                 icon: champion.image.full,
@@ -121,6 +99,10 @@ export class TftService extends EventEmitter {
         })
     }
 
+    private mapAugments(dto: AugmentsDto): any[] {
+
+        return [dto.augment_1, dto.augment_2, dto.augment_3].filter(it => !!it && it.name !== "");
+    }
 }
 
 

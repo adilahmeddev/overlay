@@ -722,10 +722,10 @@
     simple-update-notifier "2.0.0"
     yargs "^17.6.2"
 
-"@overwolf/ow-electron-packages-types@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@overwolf/ow-electron-packages-types/-/ow-electron-packages-types-0.0.5.tgz#9459609893b5a7275fb0d6f6095d5af4a0704bc3"
-  integrity sha512-m9jphQbaheY0DzhYktNfDqojCS89crO7hGZcxtNc3EBEbkhosanf/U0gW1XCAxJ9mXun+JQO4Xq84LlxWL8vKQ==
+"@overwolf/ow-electron-packages-types@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@overwolf/ow-electron-packages-types/-/ow-electron-packages-types-0.0.12.tgz#9cd45c6352adfdf47a1925793c4deecdfb64e582"
+  integrity sha512-YlFX8ROvseIC1DR5MlK6wjgBUtb+qXdAdq8k6Zw2ISA6t/RT2zabiOPf2SgrKFH8j/JznB97iNif7uHN+w+B0g==
 
 "@overwolf/ow-electron@latest":
   version "28.3.5"

@@ -1,10 +1,16 @@
 import {State} from "../src/browser/services/tft.service";
 
 export type TftUpdateFeature = keyof State;
-export type TftUpdateValue = BoardDto | BenchDto | AugmentDto | CarouselDto
 
-export function isTftUpdateFeature(x: any): x is TftUpdateFeature {
-  return ['bench', 'board', 'game_info', 'carousel'].includes(x)
+export interface PickedAugmentsDto {
+  me: AugmentsDto
+}
+
+export type TftUpdateValue = BoardDto | BenchDto | AugmentsDto | CarouselDto | PickedAugmentsDto
+
+export function isTftUpdateFeature(x: any, y: string): x is TftUpdateFeature {
+
+  return ['bench', 'board', 'carousel', 'augments', 'me', 'picked_augment'].includes(x) && (x === 'me'? y === 'picked_augment' : false);
 }
 
 export interface Piece {
@@ -51,4 +57,8 @@ export interface CarouselDto {
   slot8: CarouselPiece;
 }
 
-export type AugmentDto = object
+export interface AugmentsDto {
+  augment_1: { name:string };
+  augment_2:{ name:string };
+  augment_3:{ name:string };
+}

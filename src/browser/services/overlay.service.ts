@@ -122,7 +122,6 @@ export class OverlayService extends EventEmitter {
     });
 
     this.overlayApi.on('game-focus-changed', (window, game, focus) => {
-      this.log('game window focus changes', game.name, focus);
     });
 
     this.overlayApi.on('game-window-changed', (window, game, reason) => {

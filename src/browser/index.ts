@@ -6,7 +6,8 @@ import {GameEventsService} from './services/gep.service';
 import {MainWindowController} from './controllers/main-window.controller';
 import {DemoOSRWindowController} from './controllers/demo-osr-window.controller';
 import {OverlayInputService} from './services/overlay-input.service';
-import {TftService, TftStaticData} from "./services/tft.service";
+import {TftService} from "./services/tft.service";
+import {TftStaticData} from "./services/tftStaticData";
 
 
 /**

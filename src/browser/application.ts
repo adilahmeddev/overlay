@@ -4,7 +4,7 @@ import {OverlayService} from './services/overlay.service';
 import {kGameIds} from "@overwolf/ow-electron-packages-types/game-list";
 import {kGepSupportedGameIds} from '@overwolf/ow-electron-packages-types/gep-supported-games';
 import {GameEventsService} from './services/gep.service';
-import {TftUpdateFeature, TftUpdateValue} from "../../types/TftUpdateEvents";
+import {AugmentsDto, TftUpdateFeature, TftUpdateValue} from "../../types/TftUpdateEvents";
 import {TftService} from "./services/tft.service";
 
 export class Application {
@@ -29,9 +29,13 @@ export class Application {
       event.inject();
     })
     this.gepService.on('tft', (e, g) => {
-      const event: TftUpdateFeature = e;
       const gameInfo: TftUpdateValue = g;
+      const event: TftUpdateFeature = e;
       if (e as TftUpdateValue) {
+        if(Object.keys(g).includes('category')){
+          delete g.category;
+        }
+
         this.tftService.set(event, gameInfo);
       }
 

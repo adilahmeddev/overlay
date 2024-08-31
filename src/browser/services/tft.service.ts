@@ -48,7 +48,7 @@ export class TftService extends EventEmitter {
     public set(key: keyof State, value: TftUpdateValue) {
         let mapped = this.mapToDomain(key, value) as any;
         this.state[key] = mapped;
-        console.log(mapped);
+        console.log('state mapped', mapped);
         this.log('state-update', mapped);
     }
 
@@ -61,14 +61,15 @@ export class TftService extends EventEmitter {
             return this.mapAugments(dto as AugmentsDto)
         }
         if (key === 'picked_augment') {
-            return this.mapAugments((dto as PickedAugmentsDto).me)
+            const pickedAugments = dto as PickedAugmentsDto;
+            return [pickedAugments.slot_1, pickedAugments.slot_2, pickedAugments.slot_3].filter(it => !!it && it.name !== "").map(it=>it.name);
         }
         return tftValue;
     }
 
 
-    public printStateIfUpdated(initialState: State) {
-        if (JSON.stringify(initialState) !== JSON.stringify(this.state)) {
+    public printStateIfUpdated(initialState: string) {
+        if (initialState !== JSON.stringify(this.state)) {
             this.log('state updated', this.state)
         }
     }
@@ -101,7 +102,7 @@ export class TftService extends EventEmitter {
 
     private mapAugments(dto: AugmentsDto): any[] {
 
-        return [dto.augment_1, dto.augment_2, dto.augment_3].filter(it => !!it && it.name !== "");
+        return [dto.augment_1, dto.augment_2, dto.augment_3].filter(it => !!it && it.name !== "").map(it=>it.name);
     }
 }
 

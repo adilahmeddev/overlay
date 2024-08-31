@@ -32,7 +32,7 @@ export class MainWindowController {
 
     gepService.on('log', this.printLogMessage.bind(this));
     overlayService.on('log', this.printLogMessage.bind(this));
-    tftService.on('log', this.printLogMessage.bind(this));
+    tftService.on('tft', this.printLogMessage.bind(this));
     overlayHotkeysService.on('log', this.printLogMessage.bind(this));
 
     owElectronApp.overwolf.packages.on('crashed', (e, ...args) => {

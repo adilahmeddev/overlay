@@ -5,7 +5,7 @@ import {kGameIds} from "@overwolf/ow-electron-packages-types/game-list";
 import {kGepSupportedGameIds} from '@overwolf/ow-electron-packages-types/gep-supported-games';
 import {GameEventsService} from './services/gep.service';
 import {AugmentsDto, TftUpdateFeature, TftUpdateValue} from "../../types/TftUpdateEvents";
-import {TftService} from "./services/tft.service";
+import {State, TftService} from "./services/tft.service";
 
 export class Application {
   /**
@@ -30,16 +30,15 @@ export class Application {
     })
     this.gepService.on('tft', (e, g) => {
       const gameInfo: TftUpdateValue = g;
-      const event: TftUpdateFeature = e;
-      if (e as TftUpdateValue) {
-        if(Object.keys(g).includes('category')){
-          delete g.category;
-        }
+      let event: TftUpdateFeature = e;
 
+      console.log(event, g)
+      const initialState = JSON.stringify(this.tftService.state)
+      if (e as TftUpdateValue) {
         this.tftService.set(event, gameInfo);
       }
 
-      this.tftService.printState()
+      this.tftService.printStateIfUpdated(initialState)
     })
     // for gep supported games goto:
     // https://overwolf.github.io/api/electron/game-events/

@@ -32,7 +32,7 @@ export class GameEventsService extends EventEmitter {
      *
      */
     public async setRequiredFeatures() {
-        await this.gepApi.setRequiredFeatures(this.gepGameId, ['game_info', 'live_client_data', 'board', 'bench', 'carousel', 'augments', 'picked_augment']);
+        await this.gepApi.setRequiredFeatures(this.gepGameId, ['game_info', 'live_client_data', 'board', 'bench', 'carousel', 'augments']);
     }
 
     /**
@@ -119,8 +119,13 @@ export class GameEventsService extends EventEmitter {
         // When a new Info Update is fired
         this.gepApi.on('new-info-update', (e: any, gameId, ...args) => {
             args.forEach(it => {
-                if (isTftUpdateFeature(it.feature, it.category)) {
-                    this.emit('tft',it.feature, JSON.parse(it.value));
+                if (it.feature === 'augments' && it.key === 'picked_augment') {
+                    console.log(args)
+                    console.log(e)
+                    this.emit('tft', it.key, JSON.parse(it.value));
+                } else if (isTftUpdateFeature(it.feature, it.category)) {
+                    console.log('tft update event recieved')
+                    this.emit('tft', it.feature, JSON.parse(it.value));
                 }
             })
 

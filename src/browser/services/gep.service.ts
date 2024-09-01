@@ -119,10 +119,10 @@ export class GameEventsService extends EventEmitter {
         // When a new Info Update is fired
         this.gepApi.on('new-info-update', (e: any, gameId, ...args) => {
             args.forEach(it => {
-                if (it.feature === 'augments' && it.key === 'picked_augment') {
+                if (it.feature === 'augments') {
                     console.log(args)
                     console.log(e)
-                    this.emit('tft', it.key, JSON.parse(it.value));
+                    this.emit('tft', it.feature, it.key, JSON.parse(it.value));
                 } else if (isTftUpdateFeature(it.feature, it.category)) {
                     console.log('tft update event recieved')
                     this.emit('tft', it.feature, JSON.parse(it.value));

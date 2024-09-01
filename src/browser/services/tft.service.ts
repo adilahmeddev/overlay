@@ -9,12 +9,50 @@ import {
 import EventEmitter from "events";
 import {TftStaticData} from "./tftStaticData";
 
-export interface State {
+export class State {
     board?: Board;
     bench?: Bench;
     augments?: string[];
     picked_augment?: string[];
     carousel?: Unit[];
+
+    constructor(
+        board?: Board,
+        bench?: Bench,
+        augments?: string[],
+        picked_augment?: string[],
+        carousel?: Unit[],
+    ) {
+        this.board = board;
+        this.bench = bench;
+        this.augments = augments;
+        this.picked_augment = picked_augment;
+        this.carousel = carousel;
+    }
+
+    public toJson() {
+        return {
+            board: this.board?.map(it => JSON.stringify(it)),
+            bench: this.bench?.map(it => JSON.stringify(it)),
+            augments: this.augments?.map(it => JSON.stringify(it)),
+            picked_augment: this.picked_augment?.map(it => JSON.stringify(it)),
+            carousel: this.carousel?.map(it => JSON.stringify(it)),
+        }
+    }
+
+    public equals(state: State): boolean {
+        return arrayEqual(this.board, state.board) &&
+            arrayEqual(this.bench, state.bench) &&
+            arrayEqual(this.augments, state.augments) &&
+            arrayEqual(this.picked_augment, state.picked_augment) &&
+            arrayEqual(this.carousel, state.carousel);
+
+    }
+
+}
+
+export function arrayEqual(a?: any[], b?: any[]): boolean {
+   return JSON.stringify(a) === JSON.stringify(b);
 }
 
 export const staticDataDir = './src/static';
@@ -42,7 +80,7 @@ export class TftService extends EventEmitter {
 
     constructor(private readonly staticData: TftStaticData) {
         super();
-        this.state = {};
+        this.state = new State();
     }
 
     public set(key: keyof State, value: TftUpdateValue) {
@@ -62,14 +100,14 @@ export class TftService extends EventEmitter {
         }
         if (key === 'picked_augment') {
             const pickedAugments = dto as PickedAugmentsDto;
-            return [pickedAugments.slot_1, pickedAugments.slot_2, pickedAugments.slot_3].filter(it => !!it && it.name !== "").map(it=>it.name);
+            return [pickedAugments.slot_1, pickedAugments.slot_2, pickedAugments.slot_3].filter(it => !!it && it.name !== "").map(it => it.name);
         }
         return tftValue;
     }
 
 
-    public printStateIfUpdated(initialState: string) {
-        if (initialState !== JSON.stringify(this.state)) {
+    public printStateIfUpdated(initialState: State) {
+        if (!this.state.equals(initialState)) {
             this.log('state updated', this.state)
         }
     }
@@ -102,7 +140,11 @@ export class TftService extends EventEmitter {
 
     private mapAugments(dto: AugmentsDto): any[] {
 
-        return [dto.augment_1, dto.augment_2, dto.augment_3].filter(it => !!it && it.name !== "").map(it=>it.name);
+        return [dto.augment_1, dto.augment_2, dto.augment_3].filter(it => !!it && it.name !== "").map(it => it.name);
+    }
+
+    print(...args: any[]) {
+        this.log('updating', ...args)
     }
 }
 

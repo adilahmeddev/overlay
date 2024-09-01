@@ -722,10 +722,10 @@
     simple-update-notifier "2.0.0"
     yargs "^17.6.2"
 
-"@overwolf/ow-electron-packages-types@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@overwolf/ow-electron-packages-types/-/ow-electron-packages-types-0.0.5.tgz#9459609893b5a7275fb0d6f6095d5af4a0704bc3"
-  integrity sha512-m9jphQbaheY0DzhYktNfDqojCS89crO7hGZcxtNc3EBEbkhosanf/U0gW1XCAxJ9mXun+JQO4Xq84LlxWL8vKQ==
+"@overwolf/ow-electron-packages-types@latest":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@overwolf/ow-electron-packages-types/-/ow-electron-packages-types-0.0.12.tgz#9cd45c6352adfdf47a1925793c4deecdfb64e582"
+  integrity sha512-YlFX8ROvseIC1DR5MlK6wjgBUtb+qXdAdq8k6Zw2ISA6t/RT2zabiOPf2SgrKFH8j/JznB97iNif7uHN+w+B0g==
 
 "@overwolf/ow-electron@latest":
   version "28.3.5"
@@ -906,9 +906,9 @@
   integrity sha512-YTgQUcpdXRc7iiEMutkkXl9WUx5lGUCVYvnfRg9CV+IA4l9epctEhCTbaw4KgzXaKYv8emvFJkEM65+MkNUhsQ==
 
 "@types/node@^18.11.18":
-  version "18.19.46"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.46.tgz#51801396c01153e0626e36f43386e83bc768b072"
-  integrity sha512-vnRgMS7W6cKa1/0G3/DTtQYpVrZ8c0Xm6UkLaVFrb9jtcVC3okokW09Ki1Qdrj9ISokszD69nY4WDLRlvHlhAA==
+  version "18.19.47"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.47.tgz#18076201ad7dd3445046df6ce9ead5fe5abd9387"
+  integrity sha512-1f7dB3BL/bpd9tnDJrrHb66Y+cVrhxSOTGorRNdHwYTUlTay3HuTDPKo9a/4vX9pMQkhYBcAbL4jQdNlhCFP9A==
   dependencies:
     undici-types "~5.26.4"
 

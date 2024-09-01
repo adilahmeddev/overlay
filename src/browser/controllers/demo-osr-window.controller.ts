@@ -139,21 +139,21 @@ export class DemoOSRWindowController {
   /**
    *
    */
-  private setWindowPassthrough(pass: PassthroughType) {
+  private setWindowPassthrough(pass: PassthroughType | number) {
     this.overlayWindow.overlayOptions.passthrough = pass;
   }
 
   /**
    *
    */
-  private setWindowZorder(zOrder: ZOrderType) {
+  private setWindowZorder(zOrder: ZOrderType | number) {
     this.overlayWindow.overlayOptions.zOrder = zOrder;
   }
 
   /**
    *
    */
-  private randomInteger(min, max) {
+  private randomInteger(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 }

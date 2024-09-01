@@ -8,67 +8,81 @@ import {AugmentsDto, TftUpdateFeature, TftUpdateValue} from "../../types/TftUpda
 import {State, TftService} from "./services/tft.service";
 
 export class Application {
-  /**
-   *
-   */
-  constructor(
-    private readonly overlayService: OverlayService,
-    private readonly gepService: GameEventsService,
-    private readonly mainWindowController: MainWindowController,
-    private readonly tftService: TftService,
-  ) {
+    /**
+     *
+     */
+    constructor(
+        private readonly overlayService: OverlayService,
+        private readonly gepService: GameEventsService,
+        private readonly mainWindowController: MainWindowController,
+        private readonly tftService: TftService,
+    ) {
 
-    overlayService.on('ready', this.onOverlayServiceReady.bind(this));
+        overlayService.on('ready', this.onOverlayServiceReady.bind(this));
 
-    overlayService.on('injection-decision-handling', (
-      event: GameLaunchEvent,
-      _gameInfo: GameInfo
-    ) => {
-      // Always inject because we tell it which games we want in
-      // onOverlayServiceReady
-      event.inject();
-    })
-    this.gepService.on('tft', (e, g) => {
-      const gameInfo: TftUpdateValue = g;
-      let event: TftUpdateFeature = e;
+        overlayService.on('injection-decision-handling', (
+            event: GameLaunchEvent,
+            _gameInfo: GameInfo
+        ) => {
+            // Always inject because we tell it which games we want in
+            // onOverlayServiceReady
+            event.inject();
+        })
+        this.gepService.on('tft', (e, k, g) => {
+            if (arguments.length === 3){
+                const gameInfo: TftUpdateValue = g;
+                let key: any = k;
+                let event: TftUpdateFeature = e;
+                console.log('tft event with key', event, key)
+                const initialState = JSON.parse(JSON.stringify(this.tftService.state));
+                if (e as TftUpdateValue) {
+                    this.tftService.print(e, k)
+                    this.tftService.set(event, gameInfo);
+                }
 
-      console.log(event, g)
-      const initialState = JSON.stringify(this.tftService.state)
-      if (e as TftUpdateValue) {
-        this.tftService.set(event, gameInfo);
-      }
+                this.tftService.printStateIfUpdated(initialState)
+            } else {
+                const gameInfo: TftUpdateValue = g;
+                let event: TftUpdateFeature = e;
 
-      this.tftService.printStateIfUpdated(initialState)
-    })
-    // for gep supported games goto:
-    // https://overwolf.github.io/api/electron/game-events/
-    this.gepService.registerGames(
-      kGepSupportedGameIds.TeamfightTactics,
-    );
-  }
-  /**
-   *
-   */
-  public run() {
-    this.initialize();
-  }
+                const initialState = JSON.parse(JSON.stringify(this.tftService.state));
+                if (e as TftUpdateValue) {
+                    this.tftService.set(event, gameInfo);
+                }
 
-  /**
-   *
-   */
-  private initialize() {
-    const showDevTools = true;
-    this.mainWindowController.createAndShow(showDevTools);
-  }
+                this.tftService.printStateIfUpdated(initialState)
+            }
 
-  /**
-   *
-   */
-  private async onOverlayServiceReady() {
-    // Which games to support overlay for
-    await this.overlayService.registerToGames([
-      kGameIds.TeamfightTactics,
-      kGameIds.LeagueofLegends
-    ]);
-  }
+        })
+        // for gep supported games goto:
+        // https://overwolf.github.io/api/electron/game-events/
+        this.gepService.registerGames(
+            kGepSupportedGameIds.TeamfightTactics,
+        );
+    }
+
+    /**
+     *
+     */
+    public run() {
+        this.initialize();
+    }
+
+    /**
+     *
+     */
+    private initialize() {
+        const showDevTools = true;
+        this.mainWindowController.createAndShow(showDevTools);
+    }
+
+    /**
+     *
+     */
+    private async onOverlayServiceReady() {
+        // Which games to support overlay for
+        await this.overlayService.registerToGames([
+            kGepSupportedGameIds.TeamfightTactics,
+        ]);
+    }
 }
